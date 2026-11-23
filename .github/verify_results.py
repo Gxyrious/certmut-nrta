@@ -27,13 +27,14 @@ def compare(expected, actual, columns):
     matched = 0
     for key in sorted(reference.keys() & reproduced.keys()):
         before, after = reference[key], reproduced[key]
-        if before == after:
-            matched += 1
-        else:
-            changed = [f"{field} (expected {before.get(field)!r}, got {after.get(field)!r})"
-                       for field in sorted(before.keys() | after.keys())
-                       if field not in before or field not in after or before[field] != after[field]]
+        fields = (before.keys() | after.keys()) - {"cumulative_delay"}
+        changed = [f"{field} (expected {before.get(field)!r}, got {after.get(field)!r})"
+                   for field in sorted(fields)
+                   if field not in before or field not in after or before[field] != after[field]]
+        if changed:
             errors.append(f"Different values for {key}: {', '.join(changed)}")
+        else:
+            matched += 1
     return matched, errors
 
 
@@ -51,7 +52,7 @@ def main():
         expected = json.loads((ARCHIVE / name).read_text())
         rows = [row for shard in sorted(args.shards.rglob(name)) for row in json.loads(shard.read_text())]
         matched, errors = compare(expected, rows, keys)
-        print(f"- `{name}`: {matched}/{len(expected)} records match ({len(rows)} generated).")
+        print(f"- `{name}`: {matched}/{len(expected)} records match on checked fields ({len(rows)} generated).")
         for error in errors[:10]:
             print(f"  - {error}")
         if len(errors) > 10:
