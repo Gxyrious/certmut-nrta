@@ -1,0 +1,44 @@
+{
+  "profiles": [
+    {
+      "group": "G1",
+      "topology_label": "Broadcast"
+    },
+    {
+      "group": "G2",
+      "topology_label": "Broadcast"
+    },
+    {
+      "group": "G3",
+      "topology_label": "Broadcast"
+    },
+    {
+      "group": "G4",
+      "topology_label": "Broadcast"
+    },
+    {
+      "group": "G5",
+      "topology_label": "Broadcast"
+    },
+    {
+      "group": "G6",
+      "topology_label": "Broadcast"
+    },
+    {
+      "group": "G7",
+      "topology_label": "Chain"
+    },
+    {
+      "group": "G8",
+      "topology_label": "Ring"
+    },
+    {
+      "group": "G9",
+      "topology_label": "Chain"
+    },
+    {
+      "group": "G10",
+      "topology_label": "Star"
+    }
+  ]
+}

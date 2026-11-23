@@ -1,0 +1,96 @@
+name: Reproduce experiments
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build the learner
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: python 1_source_code/build.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: learner-jar
+          path: 1_source_code/lib/learner.jar
+          compression-level: 0
+          retention-days: 7
+          overwrite: true
+          if-no-files-found: error
+
+  reproduce:
+    name: Run ${{ matrix.group }} at B=${{ matrix.budget }}
+    needs: build
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [G1, G2, G3, G4, G5, G6, G7, G8, G9, G10]
+        budget: [128, 256, 512]
+    defaults:
+      run:
+        working-directory: 1_source_code
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: 1_source_code/requirements.txt
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/download-artifact@v8
+        with:
+          name: learner-jar
+          path: 1_source_code/lib
+      - run: python -m pip install -r requirements.txt
+      - name: Run all cases, methods and seeds
+        env:
+          GROUP: ${{ matrix.group }}
+          BUDGET: ${{ matrix.budget }}
+        run: >-
+          python run.py --group "$GROUP" --budget "$BUDGET"
+          --workers "$(nproc)" --output "$RUNNER_TEMP/results"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: shard-${{ matrix.group }}-B${{ matrix.budget }}
+          path: ${{ runner.temp }}/results
+          retention-days: 7
+          overwrite: true
+          if-no-files-found: error
+
+  verify:
+    name: Verify all archived results
+    needs: reproduce
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: shard-*
+          path: ${{ runner.temp }}/shards
+      - name: Compare every record
+        shell: bash
+        run: >-
+          python3 .github/verify_results.py "$RUNNER_TEMP/shards"
+          "$RUNNER_TEMP/reproduced-results" | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: reproduced-results
+          path: ${{ runner.temp }}/reproduced-results
+          overwrite: true
+          if-no-files-found: error

@@ -1,0 +1,115 @@
+{
+  "name": "P2",
+  "clocks": [
+    "x2"
+  ],
+  "actions": [
+    "p2",
+    "p2b",
+    "s0",
+    "s1"
+  ],
+  "locations": [
+    {
+      "name": "L0",
+      "accepting": true,
+      "invariant": {}
+    },
+    {
+      "name": "L1",
+      "accepting": true,
+      "invariant": {}
+    }
+  ],
+  "transitions": [
+    {
+      "source": "L0",
+      "action": "p2",
+      "guard": {
+        "x2": "[0,+)"
+      },
+      "reset": [
+        "x2"
+      ],
+      "target": "L1"
+    },
+    {
+      "source": "L0",
+      "action": "p2b",
+      "guard": {
+        "x2": "[0,1]"
+      },
+      "reset": [
+        "x2"
+      ],
+      "target": "L0"
+    },
+    {
+      "source": "L0",
+      "action": "s0",
+      "guard": {
+        "x2": "[0,+)"
+      },
+      "reset": [
+        "x2"
+      ],
+      "target": "L1"
+    },
+    {
+      "source": "L0",
+      "action": "s1",
+      "guard": {
+        "x2": "[0,+)"
+      },
+      "reset": [
+        "x2"
+      ],
+      "target": "L1"
+    },
+    {
+      "source": "L1",
+      "action": "p2",
+      "guard": {
+        "x2": "[0,+)"
+      },
+      "reset": [
+        "x2"
+      ],
+      "target": "L0"
+    },
+    {
+      "source": "L1",
+      "action": "p2b",
+      "guard": {
+        "x2": "[0,2]"
+      },
+      "reset": [
+        "x2"
+      ],
+      "target": "L0"
+    },
+    {
+      "source": "L1",
+      "action": "s0",
+      "guard": {
+        "x2": "[0,+)"
+      },
+      "reset": [
+        "x2"
+      ],
+      "target": "L0"
+    },
+    {
+      "source": "L1",
+      "action": "s1",
+      "guard": {
+        "x2": "[0,+)"
+      },
+      "reset": [
+        "x2"
+      ],
+      "target": "L0"
+    }
+  ],
+  "init_location": "L0"
+}
